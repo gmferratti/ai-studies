@@ -24,14 +24,21 @@ RANDOM_STATE = 42
 
 def load_raw_data(path: Path = DATA_PATH) -> pd.DataFrame:
     """Carrega o dataset bruto a partir do CSV local."""
-    # TODO: validar existência do arquivo e orientar o download se ausente
-    raise NotImplementedError
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Dataset não encontrado em '{path}'. Baixe-o com:\n"
+            "    kaggle datasets download -d mlg-ulb/creditcardfraud -p data/ --unzip\n"
+            "(veja as instruções de configuração da API do Kaggle no topo deste arquivo)."
+        )
+    return pd.read_csv(path)
 
 
 def build_preprocessing_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     """Aplica normalização e trata eventuais valores faltantes."""
-    # TODO: normalizar colunas numéricas com StandardScaler
-    raise NotImplementedError
+    df = df.dropna()
+    colunas_numericas = df.columns.drop("Class")
+    df[colunas_numericas] = StandardScaler().fit_transform(df[colunas_numericas])
+    return df
 
 
 def get_train_test_split(df: pd.DataFrame, test_size: float = 0.2):
@@ -39,6 +46,6 @@ def get_train_test_split(df: pd.DataFrame, test_size: float = 0.2):
     Retorna X_train, X_test, y_train, y_test com random_state fixo,
     para que todos os algoritmos do módulo sejam comparáveis entre si.
     """
-    # TODO: separar features e target, aplicar train_test_split com
-    # stratify=y (dataset é fortemente desbalanceado)
-    raise NotImplementedError
+    X = df.drop(columns="Class")
+    y = df["Class"]
+    return train_test_split(X, y, test_size=test_size, random_state=RANDOM_STATE, stratify=y)

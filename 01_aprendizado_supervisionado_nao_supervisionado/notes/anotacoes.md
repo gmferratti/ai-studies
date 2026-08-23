@@ -1,0 +1,3 @@
+- Árvores de decisão (para classificação)
+- Árvores de regressão (para regressão)
+- Dividir para conquistar. Problemas complexos fragmentados em problemas mais simples resolvidos recursivamente.
