@@ -7,7 +7,7 @@ dataset e o mesmo split de treino/teste (ver `utils/data_utils.py`).
 
 - [X] Árvore de decisão (`decision_tree/decision_tree.py`)
 - [X] k-NN (`knn/knn.py`)
-- [ ] SVM (`svm/svm.py`)
+- [X] SVM (`svm/svm.py`)
 - [X] Naive Bayes (`naive_bayes/naive_bayes.py`)
 - [ ] Bagging (`bagging/bagging.py`)
 - [ ] Boosting (`boosting/boosting.py`)
@@ -22,7 +22,7 @@ num dataset com 0,17% de fraude, acurácia sozinha não diz muita coisa.
 |---|---|---|---|---|
 | Árvore de decisão | | | | |
 | k-NN (K=3, uniform) | 0,9996 | 0,9101 | 0,8265 | 0,8663 |
-| SVM | | | | |
+| SVM (LinearSVC, C=1) | 0,9991 | 0,8286 | 0,5918 | 0,6905 |
 | Naive Bayes (GaussianNB, var_smoothing=1e-9) | 0,9764 | 0,0588 | 0,8469 | 0,1099 |
 | Bagging | | | | |
 | Boosting | | | | |
@@ -49,3 +49,19 @@ num dataset com 0,17% de fraude, acurácia sozinha não diz muita coisa.
   resultado (F1 de 0,1099 pra 0,1109), sinal de que o problema aqui não é
   divisão por variância zero, é a suposição Gaussiana em si não encaixar
   nos dados.
+- SVM: o resultado da tabela é do `LinearSVC` (kernel linear, treinado no
+  conjunto completo). Precisão alta (0,8286) mas recall mediano (0,5918),
+  o oposto do padrão de k-NN e Naive Bayes nesta tabela: quando o SVM
+  aponta fraude, geralmente acerta, mas deixa passar bastante fraude de
+  verdade. Faz sentido pela forma de treinar: `LinearSVC` maximiza a
+  margem no espaço original, sem nenhum ajuste específico pra classe rara
+  ficar mais fácil de acertar, então a fronteira linear tende a ficar do
+  lado "seguro" (a favor da classe majoritária). Testei também um `SVC`
+  com kernel RBF, mas só numa amostra estratificada (todas as fraudes do
+  treino mais algumas milhares de transações normais, não o treino
+  inteiro): nessa amostra o RBF teve recall bem mais alto (0,8673) e F1
+  um pouco melhor (0,7658), mas não é um resultado comparável de verdade
+  com o resto da tabela, porque treinou em muito menos dado normal. Serve
+  mais pra mostrar a ideia de kernel não linear e o custo computacional
+  do RBF (ver `svm/svm.py`) do que como número final da classe SVM neste
+  dataset.
