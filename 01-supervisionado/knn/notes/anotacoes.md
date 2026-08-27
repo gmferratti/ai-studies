@@ -48,10 +48,16 @@ Na votação simples, todo vizinho vale 1 voto, não importa se está colado no 
 
 ## Maldição da dimensionalidade
 
-- O espaço definido pelos atributos de um problema cresce exponencialmente com o número de atributos.
-- Com o aumento da dimensionalidade, a distância ao vizinho mais próximo se aproxima da distância ao vizinho mais afastado (as distâncias colapsam, todo mundo fica "parecido" de longe). Nesse cenário, o conceito de vizinhança perde força, e o k-NN sofre mais do que algoritmos como a árvore de decisão, que escolhe só os atributos mais úteis a cada pergunta.
+Imagine que você quer achar, numa multidão, alguém "parecido" com você. Comparando só pela altura, é fácil: um bocado de gente vai estar pertinho da sua altura. Agora compare por altura, peso, idade, tamanho do pé e cor dos olhos ao mesmo tempo: pra alguém ser parecido com você agora, precisa estar perto em TODAS essas características ao mesmo tempo, não só numa, o que é muito mais raro. Quanto mais características você adiciona, mais difícil fica achar alguém realmente parecido em tudo, e as pessoas começam a parecer todas mais ou menos igualmente "distantes" de você, até as que antes pareciam próximas.
+
+É isso que acontece com os dados. Com poucos atributos, "estar perto" quer dizer alguma coisa de verdade. Conforme cresce o número de atributos:
+
+- O espaço definido pelos atributos cresce exponencialmente com o número de atributos.
+- A distância ao vizinho mais próximo se aproxima da distância ao vizinho mais afastado (as distâncias colapsam, todo mundo fica "parecido" de longe). Nesse cenário, o conceito de vizinhança perde força, e o k-NN sofre mais do que algoritmos como a árvore de decisão, que escolhe só os atributos mais úteis a cada pergunta.
 - Afetado por atributos redundantes ou irrelevantes, que só atrapalham essa conta.
 - Recomenda-se aplicar um algoritmo de redução dimensional (ex.: PCA) ou seleção de atributos, dada essa maldição da dimensionalidade.
+
+Pra compensar essa "diluição" e ainda achar vizinhos de verdade, seria preciso uma quantidade de dados que cresce exponencialmente a cada atributo novo, o que raramente é viável na prática. É por isso que "maldição": o custo de ter mais informação (mais atributos) sai caro demais em quantidade de dados necessária.
 
 ## Custo computacional
 

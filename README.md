@@ -17,7 +17,7 @@ sem rótulo). Ver `ementa.md` pro cronograma de estudo.
 │   └── data_utils.py          # carga e pré-processamento compartilhados
 ├── 01-supervisionado/          # árvore de decisão, k-NN, SVM, Naive Bayes, bagging, boosting, random forest
 ├── 02-nao_supervisionado/      # clustering, Apriori, PCA
-├── 03-outros/                  # avaliação de modelos, PAC-learning: teoria que não é um método em si
+├── 03-outros/                  # fundamentos, avaliação de modelos, PAC-learning: teoria que não é um método em si
 └── ementa.md                  # cronograma de estudo desta fase
 ```
 
@@ -25,8 +25,8 @@ sem rótulo). Ver `ementa.md` pro cronograma de estudo.
   algoritmos e tabela de comparação de resultados.
 - [`02-nao_supervisionado/README.md`](02-nao_supervisionado/README.md): idem,
   pra família não supervisionada.
-- [`03-outros/README.md`](03-outros/README.md): métricas de avaliação e
-  formalização teórica (PAC-learning).
+- [`03-outros/README.md`](03-outros/README.md): formalização do problema de
+  aprendizado, viés indutivo, métricas de avaliação e PAC-learning.
 
 ## Como rodar
 

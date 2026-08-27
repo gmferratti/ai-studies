@@ -40,6 +40,7 @@ subpasta, com o mesmo nome do arquivo principal, por exemplo:
 │       ├── images/
 │       └── notes/
 └── 03-outros/
+    ├── fundamentos_aprendizado/
     ├── avaliacao_modelos/
     └── pac_learning/
 ```
