@@ -1,14 +1,17 @@
-# Aprendizado Supervisionado e Não Supervisionado
+# Aprendizado Supervisionado
 
 Revisão de algoritmos clássicos de classificação, comparados sobre o mesmo
 dataset e o mesmo split de treino/teste (ver `utils/data_utils.py`).
 
 ## Algoritmos
 
-- [X] Árvore de decisão (`decision_tree.py`)
-- [X] k-NN (`knn.py`)
-- [ ] SVM (`svm.py`)
-- [X] Naive Bayes (`naive_bayes.py`)
+- [X] Árvore de decisão (`decision_tree/decision_tree.py`)
+- [X] k-NN (`knn/knn.py`)
+- [ ] SVM (`svm/svm.py`)
+- [X] Naive Bayes (`naive_bayes/naive_bayes.py`)
+- [ ] Bagging (`bagging/bagging.py`)
+- [ ] Boosting (`boosting/boosting.py`)
+- [ ] Random Forest (`random_forest/random_forest.py`)
 
 ## Comparação de resultados
 
@@ -21,6 +24,9 @@ num dataset com 0,17% de fraude, acurácia sozinha não diz muita coisa.
 | k-NN (K=3, uniform) | 0,9996 | 0,9101 | 0,8265 | 0,8663 |
 | SVM | | | | |
 | Naive Bayes (GaussianNB, var_smoothing=1e-9) | 0,9764 | 0,0588 | 0,8469 | 0,1099 |
+| Bagging | | | | |
+| Boosting | | | | |
+| Random Forest | | | | |
 
 ## Notas e aprendizados
 
@@ -36,7 +42,7 @@ num dataset com 0,17% de fraude, acurácia sozinha não diz muita coisa.
   dataset de fraude (componentes de PCA) não seguem uma curva de sino
   limpa dentro de cada classe, a classe fraude em particular fica bem mais
   espalhada e "torta" que uma Gaussiana (visível em
-  `bayes/images/densidades_gaussianas.png`), então o modelo classifica
+  `naive_bayes/images/densidades_gaussianas.png`), então o modelo classifica
   fraude demais como positivo, incluindo muito falso positivo, só pra não
   deixar passar as fraudes de verdade. Variar `var_smoothing` de 1e-9 pra
   1e-2 (o equivalente contínuo da suavização de Laplace) quase não mudou o

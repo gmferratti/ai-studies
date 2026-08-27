@@ -1,29 +1,32 @@
-# Revisão de Fundamentos Clássicos e Modernos de Machine Learning e IA
+# Aprendizado Supervisionado e Não Supervisionado
 
-Projeto pessoal de estudo, implementação prática e revisão de conceitos de Machine Learning e Inteligência Artificial, do básico ao estado da arte: aprendizado supervisionado e não supervisionado, redes neurais e deep learning, aprendizado por reforço, grandes modelos de linguagem, processamento de linguagem natural, séries temporais, aprendizado em fluxo, e os temas mais conceituais de ética, explicabilidade e representação do conhecimento.
+Revisão de algoritmos clássicos de aprendizado de máquina, cada um com uma
+explicação mastigada (analogia antes da fórmula), um exemplo de brinquedo
+calculado na mão, visualização, e o treino de verdade sobre um dataset real
+comum a todos: detecção de fraude em cartão de crédito.
 
-O objetivo é ir além da teoria: cada módulo tem implementações práticas comparáveis entre si, sobre um dataset comum, para consolidar intuição sobre quando e por que usar cada abordagem.
+Os algoritmos ficam divididos em duas famílias: supervisionado (aprende a
+partir de exemplos rotulados) e não supervisionado (busca padrões em dados
+sem rótulo). Ver `ementa.md` pro cronograma de estudo.
 
 ## Estrutura do repositório
 
 ```
 .
 ├── utils/
-│   └── data_utils.py                 # funções compartilhadas de carga e pré-processamento de dados
-├── 01_aprendizado_supervisionado_nao_supervisionado/
-│   ├── decision_tree.py
-│   ├── knn.py
-│   ├── svm.py
-│   ├── naive_bayes.py
-│   └── README.md                     # comparação entre os algoritmos do módulo
-├── 02_redes_neurais_deep_learning/
-├── 03_aprendizado_por_reforco/
-├── 04_grandes_modelos_de_linguagem/
-├── 05_pln_series_temporais_streaming/
-└── 06_etica_explicabilidade_representacao_conhecimento/
+│   └── data_utils.py          # carga e pré-processamento compartilhados
+├── 01-supervisionado/          # árvore de decisão, k-NN, SVM, Naive Bayes, bagging, boosting, random forest
+├── 02-nao_supervisionado/      # clustering, Apriori, PCA
+├── 03-outros/                  # avaliação de modelos, PAC-learning: teoria que não é um método em si
+└── ementa.md                  # cronograma de estudo desta fase
 ```
 
-Cada módulo tem seu próprio README com contexto, decisões de implementação e resultados. O repositório é atualizado incrementalmente conforme os estudos avançam.
+- [`01-supervisionado/README.md`](01-supervisionado/README.md): checklist de
+  algoritmos e tabela de comparação de resultados.
+- [`02-nao_supervisionado/README.md`](02-nao_supervisionado/README.md): idem,
+  pra família não supervisionada.
+- [`03-outros/README.md`](03-outros/README.md): métricas de avaliação e
+  formalização teórica (PAC-learning).
 
 ## Como rodar
 
@@ -36,21 +39,29 @@ uv sync
 Cada script pode ser executado isoladamente via `uv run`, por exemplo:
 
 ```bash
-uv run 01_aprendizado_supervisionado_nao_supervisionado/decision_tree.py
+uv run 01-supervisionado/decision_tree/decision_tree.py
 ```
 
 ## Dataset base
 
-Para o módulo de aprendizado supervisionado e não supervisionado, uso o dataset público [Credit Card Fraud Detection (Kaggle)](https://www.kaggle.com/mlg-ulb/creditcardfraud) como base comum para comparar os algoritmos clássicos de classificação sob um cenário real de forte desbalanceamento de classes. Os dados não são versionados neste repositório (ver `.gitignore`); instruções de download estão em `utils/data_utils.py`.
+Uso o dataset público [Credit Card Fraud Detection (Kaggle)](https://www.kaggle.com/mlg-ulb/creditcardfraud)
+como base comum para comparar os algoritmos clássicos de classificação sob
+um cenário real de forte desbalanceamento de classes. Os dados não são
+versionados neste repositório (ver `.gitignore`); instruções de download
+estão em `utils/data_utils.py`.
 
-## Roadmap
+## Outros repositórios
 
-- [ ] Aprendizado supervisionado e não supervisionado
-- [ ] Redes neurais e deep learning
-- [ ] Aprendizado por reforço
-- [ ] Grandes modelos de linguagem
-- [ ] PLN, séries temporais e aprendizado em fluxo
-- [ ] Ética, explicabilidade e representação do conhecimento
+Esse é um de vários repositórios de revisão de fundamentos de Machine
+Learning e IA, cada um dedicado a um tópico:
+
+- [deep-learning](https://github.com/gmferratti/deep-learning): redes neurais e deep learning
+- [reinforcement-learning](https://github.com/gmferratti/reinforcement-learning): aprendizado por reforço
+- [large-language-models](https://github.com/gmferratti/large-language-models): grandes modelos de linguagem
+- [nlp](https://github.com/gmferratti/nlp): processamento de linguagem natural
+- [time-series](https://github.com/gmferratti/time-series): séries temporais
+- [streaming-ml](https://github.com/gmferratti/streaming-ml): aprendizado em fluxo
+- [ai-ethics-explainability](https://github.com/gmferratti/ai-ethics-explainability): ética, explicabilidade e representação do conhecimento
 
 ## Licença
 

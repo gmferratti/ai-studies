@@ -1,173 +1,18 @@
 """
 k-NN (k-vizinhos mais próximos) aplicado ao dataset de detecção de fraude.
 
-Conceitos revisados: aprendizado baseado em instância (lazy learning),
-métricas de distância, escolha do K, voto ponderado por distância,
-necessidade de normalização, maldição da dimensionalidade.
+Teoria completa (lazy learning, métricas de distância, escolha do K, voto
+ponderado, normalização, maldição da dimensionalidade) está em
+`notes/anotacoes.md`.
 
 Este arquivo tem duas partes:
-  1) Uma aula "mastigada", com analogia de guilda de RPG e um exemplo de
-     brincadeira com aventureiros de fantasia, pra entender a ideia ANTES
-     de ver a matemática rodando em cima de dados de verdade. Não exige
-     conhecimento prévio de programação ou estatística.
+  1) Exemplo de brincadeira com aventureiros de RPG, refazendo na mão a
+     conta de distância e votação que o k-NN faz escondido, pra sentir o
+     algoritmo escolhendo os vizinhos antes de ver isso rodando em cima
+     de dados de verdade.
   2) O treino de verdade, no dataset de fraude de cartão de crédito.
 
 Rode o arquivo e leia o terminal de cima pra baixo.
-
----------------------------------------------------------------------------
-COMO FUNCIONA O K-NN
----------------------------------------------------------------------------
-
-PENSE NUMA TAVERNA DE RPG QUE FUNCIONA COMO POSTO DE RECRUTAMENTO DE
-GUILDA.
-
-Chega um aventureiro novo, sem ficha de classe definida. O taverneiro não
-faz um interrogatório tipo Chapéu Seletor, pergunta atrás de pergunta. Ele
-faz outra coisa: olha pros K aventureiros já cadastrados que mais PARECEM
-com o novato (força parecida, agilidade parecida) e copia a classe que a
-maioria deles tem. "Diga-me com quem você anda parecido, e eu digo quem
-você é." Essa é a ideia inteira do k-NN, sem enfeite.
-
-Repare na diferença de mecânica em relação a uma árvore de decisão: a
-árvore aprende PERGUNTAS durante o treino e depois é rápida pra decidir.
-O k-NN não aprende pergunta nenhuma: ele só GUARDA a lista cadastrada de
-aventureiros (o treino é só isso: memorizar) e faz toda a conta pesada na
-hora de classificar alguém novo, comparando com todo mundo que já está na
-lista. Por isso o k-NN é chamado de "aprendizado preguiçoso" (lazy
-learning): a preguiça é não construir nada de antemão.
-
-No vocabulário "oficial":
-
-    - Instância / exemplo -> um aventureiro já cadastrado (com classe
-      conhecida) ou o caso novo que se quer classificar.
-    - Atributo             -> uma característica numérica do aventureiro
-      (força, agilidade, ...), que vira uma coordenada num mapa.
-    - Vizinho              -> uma instância de treino, medida pela
-      distância até o caso novo.
-    - K                    -> quantos vizinhos mais próximos o taverneiro
-      consulta antes de decidir.
-
-1) COMO O K-NN CLASSIFICA UM CASO NOVO, PASSO A PASSO
-
-       a. Recebe o aventureiro novo, com os atributos medidos mas sem
-          classe.
-       b. Calcula a DISTÂNCIA dele até TODOS os aventureiros já
-          cadastrados (não existe atalho: precisa medir com todo mundo).
-       c. Ordena essa lista do mais perto pro mais longe.
-       d. Pega só os K primeiros da fila (os K vizinhos mais próximos).
-       e. VOTA: a classe mais comum entre esses K vizinhos vence, e essa
-          é a previsão. Numa regressão (prever um número, não uma classe),
-          troca-se o voto pela MÉDIA dos valores dos K vizinhos.
-
-   Se K for par e o problema tiver 2 classes, dá pra empatar o voto (3 a
-   3, por exemplo). Pegadinha clássica de prova: por isso é comum escolher
-   K ímpar em problemas de duas classes, só pra fugir do empate.
-
-2) COMO SE MEDE "PARECIDO"? MÉTRICAS DE DISTÂNCIA
-
-   a. DISTÂNCIA EUCLIDIANA (a mais comum, "linha reta no mapa")
-
-          d(a, b) = sqrt( Σ (a_i - b_i)² )
-
-      É Pitágoras: a diferença em cada atributo vira um cateto, e a
-      distância é a hipotenusa combinando todos eles. Se o aventureiro A
-      tem (força=9, agilidade=3) e o aventureiro B tem (força=5,
-      agilidade=6), a distância é sqrt((9-5)² + (3-6)²) = sqrt(16+9) = 5.
-
-   b. DISTÂNCIA MANHATTAN ("andando em quarteirão de cidade")
-
-          d(a, b) = Σ |a_i - b_i|
-
-      Em vez de cortar caminho na diagonal (como a Euclidiana), soma as
-      diferenças em módulo, como se só pudesse andar reto e virar esquina,
-      sem atravessar quarteirão. Pro mesmo par acima: |9-5| + |3-6| =
-      4 + 3 = 7 (sempre maior ou igual à Euclidiana, porque a diagonal é o
-      caminho mais curto).
-
-   c. DISTÂNCIA DE MINKOWSKI: a fórmula geral por trás das duas de cima
-
-          d(a, b) = ( Σ |a_i - b_i|^p )^(1/p)
-
-      Com p=1 vira Manhattan, com p=2 vira Euclidiana. É só um "controle
-      de intensidade" de quanto se penaliza diferença grande num atributo
-      só.
-
-   d. DISTÂNCIA DE HAMMING (pra atributo categórico, tipo "Tipo de
-      Pokémon"): conta simplesmente em quantas posições os dois exemplos
-      são DIFERENTES. Não faz sentido subtrair "Fogo" de "Água", então
-      aqui não tem fórmula de régua, é só contagem de discordância.
-
-3) ESCOLHA DO K: O PARÂMETRO MAIS IMPORTANTE DO K-NN
-
-   - K PEQUENO (ex.: K=1): a previsão depende só do vizinho mais próximo.
-     Fronteira de decisão bem "irregular", recortada, sensível a ruído e
-     outlier (um único exemplo mal rotulado no treino já muda a resposta).
-     Tende a OVERFITTING.
-   - K GRANDE: a previsão passa a somar votos de vizinhos cada vez mais
-     distantes, então a fronteira fica mais suave, mas o padrão local se
-     dilui. No limite (K = todos os exemplos), o k-NN sempre responde a
-     classe mais comum do dataset inteiro, ignorando o caso novo por
-     completo. Tende a UNDERFITTING, e é particularmente ruim em dados
-     DESBALANCEADOS (a classe rara, como fraude, quase nunca ganha votação
-     numérica se K for grande).
-   - Não existe um K universal: na prática, testam-se vários valores de K
-     com validação cruzada e fica-se com o que generaliza melhor.
-
-4) VOTO PONDERADO POR DISTÂNCIA
-
-   Na votação "simples", todo vizinho vale 1 voto, não importa se está
-   colado no caso novo ou quase saindo da lista dos K. Uma variação mais
-   esperta pesa cada voto pelo INVERSO da distância (1/distância): quem
-   está mais perto pesa mais. Isso ajuda a resolver empates e reduz a
-   influência de vizinhos "só de raspão" que entraram nos K por pouco.
-
-5) POR QUE NORMALIZAR OS ATRIBUTOS É OBRIGATÓRIO NO K-NN
-
-   A fórmula de distância soma diferenças de TODOS os atributos juntos.
-   Se um atributo estiver numa escala muito maior que os outros (tipo
-   "ouro carregado", na casa das centenas, ao lado de "força", de 1 a 10),
-   ele sozinho domina a conta da distância, mesmo que não tenha nada a ver
-   com a classe do aventureiro. É como comparar duas pessoas e deixar a
-   "altura em milímetros" atropelar completamente o "peso em quilos" só
-   porque o número é maior. Por isso todo atributo precisa estar na MESMA
-   escala antes de calcular distância (normalização Min-Max ou
-   padronização Z-score). Vamos ver esse efeito acontecendo na prática
-   mais adiante.
-
-6) A MALDIÇÃO DA DIMENSIONALIDADE
-
-   Com poucos atributos, "estar perto" tem significado claro. Conforme se
-   adicionam cada vez mais atributos (dimensões), os pontos do dataset vão
-   ficando todos parecidos em distância uns dos outros: a diferença entre
-   "o vizinho mais próximo" e "um vizinho qualquer" praticamente
-   desaparece. Nesse cenário, o conceito de vizinhança perde força e o
-   k-NN tende a sofrer mais do que algoritmos como a árvore de decisão,
-   que escolhe só os atributos mais úteis a cada pergunta.
-
-7) CUSTO COMPUTACIONAL: TREINO DE GRAÇA, PREVISÃO CARA
-
-   Como o "treino" é só guardar os dados (lazy learning), ele é
-   instantâneo. O preço é pago na hora de prever: pra cada caso novo, é
-   preciso medir a distância até (em princípio) TODO o conjunto de treino,
-   guardado inteiro na memória. Estruturas como KD-Tree e Ball Tree
-   organizam os dados de treino de um jeito que evita comparar com todo
-   mundo (é o que o scikit-learn usa por baixo dos panos), mas mesmo assim
-   o k-NN costuma ser mais lento pra prever do que uma árvore já treinada.
-
-8) VANTAGENS x DESVANTAGENS
-   (+) Simples de entender e de implementar.
-   (+) Não faz suposição sobre o formato dos dados (não assume fronteira
-       linear, por exemplo): se adapta bem a padrões complicados.
-   (+) Treino instantâneo (só guarda os dados).
-   (-) Previsão cara: precisa guardar o dataset inteiro e medir distância
-       toda vez.
-   (-) Muito sensível à escala dos atributos: precisa normalizar antes.
-   (-) Sofre com a maldição da dimensionalidade em datasets com muitas
-       colunas.
-   (-) Em dados desbalanceados, a classe rara tende a perder a votação
-       (relevante aqui: fraude é raríssima!), a não ser que se use voto
-       ponderado por distância ou outra correção.
----------------------------------------------------------------------------
 """
 
 import math

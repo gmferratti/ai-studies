@@ -1,5 +1,9 @@
 # Naive Bayes
 
+## Analogia central: o sistema anti-cheat de um jogo online
+
+Ele não segue um fluxograma de perguntas tipo "jogou mais de 20 horas seguidas? então é bot" (isso seria mais parecido com uma árvore de decisão). Ele faz outra coisa: junta várias pistas de comportamento (tempo de reação, horário que joga, tipo de mensagem no chat) e calcula uma probabilidade de a conta ser bot, combinando cada pista como se ela não tivesse nenhuma relação com as outras. No fim, escolhe o rótulo (bot ou humano) que ficou com a maior probabilidade. É esse "combinar pistas como se fossem independentes" que dá nome ao algoritmo: ele é "ingênuo" (naive) de propósito.
+
 ## O que é
 
 - Classificador probabilístico: em vez de desenhar uma fronteira geométrica entre as classes (como o k-NN faz com distância, ou a árvore de decisão com perguntas sim/não), o Naive Bayes calcula a probabilidade de cada classe dado os atributos observados, e escolhe a mais provável.
@@ -101,3 +105,7 @@ Um detalhe de implementação relevante: como o produtório de muitos números p
 - Filtro de spam, o exemplo mais citado, com Multinomial NB sobre contagem de palavras.
 - Classificação de sentimento e outras tarefas de texto.
 - Diagnóstico médico simples, sintomas como atributos, doença como classe.
+
+## Ver também
+
+- `naive_bayes/naive_bayes.py`: contas feitas na mão (prior, verossimilhança, produtório, critério MAP, problema do produto de zero) com o exemplo do detector de bot, e o treino de verdade no dataset de fraude.

@@ -1,172 +1,18 @@
 """
 Naive Bayes aplicado ao dataset de detecção de fraude.
 
-Conceitos revisados: Teorema de Bayes, suposição de independência
-condicional ("ingenuidade"), critério MAP, o problema do produto de zero
-e a suavização de Laplace, as variantes Gaussian, Multinomial e Bernoulli.
+Teoria completa (Teorema de Bayes, independência condicional, critério
+MAP, problema do produto de zero, suavização de Laplace, variantes
+Gaussian/Multinomial/Bernoulli) está em `notes/anotacoes.md`.
 
 Este arquivo tem duas partes:
-  1) Uma aula "mastigada", com analogia de sistema anti-cheat de jogo
-     online e um exemplo de brincadeira detectando bot numa partida, pra
-     entender a ideia ANTES de ver a matemática rodando em cima de dados
-     de verdade. Não exige conhecimento prévio de programação ou
-     estatística.
+  1) Exemplo de brincadeira detectando bot numa partida, refazendo na mão
+     a conta de prior, verossimilhança e produtório que o Naive Bayes faz
+     escondido, pra sentir o algoritmo decidindo antes de ver isso
+     rodando em cima de dados de verdade.
   2) O treino de verdade, no dataset de fraude de cartão de crédito.
 
 Rode o arquivo e leia o terminal de cima pra baixo.
-
----------------------------------------------------------------------------
-COMO FUNCIONA O NAIVE BAYES
----------------------------------------------------------------------------
-
-PENSE NUM SISTEMA ANTI-CHEAT DE JOGO ONLINE.
-
-Ele não segue um fluxograma de perguntas tipo "jogou mais de 20 horas
-seguidas? então É bot" (isso seria mais parecido com uma árvore de
-decisão). Ele faz outra coisa: junta várias pistas de comportamento
-(tempo de reação, horário que joga, tipo de mensagem no chat) e calcula
-uma PROBABILIDADE de a conta ser bot, combinando cada pista como se ela
-não tivesse nenhuma relação com as outras. No fim, escolhe o rótulo (bot
-ou humano) que ficou com a maior probabilidade. É esse "combinar pistas
-como se fossem independentes" que dá nome ao algoritmo: ele é "ingênuo"
-(naive) de propósito.
-
-No vocabulário "oficial":
-
-    - Classe          -> o rótulo que se quer prever (bot ou humano).
-    - Atributo (pista) -> uma característica observável da conta (reação
-      robótica? online 24h seguidas? chat só com frases prontas?).
-    - Prior            -> a chance de ser bot ANTES de olhar pra qualquer
-      pista.
-    - Verossimilhança  -> a chance de observar uma pista específica, SE a
-      conta já fosse bot (ou já fosse humana).
-    - Posterior        -> a chance de ser bot DEPOIS de já ter olhado as
-      pistas, o que o algoritmo realmente quer calcular.
-
-1) TEOREMA DE BAYES: A IDEIA CENTRAL
-
-   O nome do algoritmo vem do Teorema de Bayes, que relaciona duas
-   probabilidades "de trás pra frente":
-
-       P(classe | pista) = P(pista | classe) * P(classe) / P(pista)
-
-   Traduzindo cada pedaço com o exemplo do anti-cheat:
-
-       - P(bot | pista)  (posterior): o que se quer saber, a chance de
-         ser bot depois de observar a pista.
-       - P(pista | bot)  (verossimilhança): entre as contas que JÁ SE
-         SABE que são bot (histórico analisado por um moderador), quantas
-         tinham essa pista.
-       - P(bot)          (prior): a chance de qualquer conta aleatória
-         ser bot, sem olhar pra nenhuma pista. Se 3 em cada 10 contas
-         analisadas eram bot, P(bot) = 0,3.
-       - P(pista)        (evidência): a chance de ver essa pista somando
-         bot e humano juntos. Funciona só como "normalizador", pra as
-         probabilidades de todas as classes somarem 1, e por isso, como
-         vamos ver adiante, dá pra ignorar ela na hora de decidir.
-
-   A ideia chave: a probabilidade de ser bot não depende só de quão
-   suspeita é a pista (verossimilhança), depende também de quão comum já
-   era ser bot ANTES de qualquer pista (o prior). Se bot for raríssimo no
-   servidor (prior bem baixo), mesmo uma pista bem suspeita não é
-   necessariamente o bastante pra concluir "é bot com certeza": é a mesma
-   lógica de "exame médico raro dá falso positivo raro, mesmo sendo um
-   bom exame".
-
-2) A SUPOSIÇÃO "INGÊNUA": INDEPENDÊNCIA CONDICIONAL
-
-   Na vida real, jogar 24 horas seguidas e ter reação robótica não são
-   pistas totalmente soltas uma da outra: quem joga sem parar tende a
-   ficar cansado e reagir PIOR, não igual todo santo dia. Mesmo assim, o
-   Naive Bayes finge que, sabendo já se a conta é bot ou não, uma pista
-   não diz NADA sobre a outra. Essa suposição quase nunca é 100%
-   verdadeira, mas o algoritmo funciona bem mesmo assim, porque pra
-   decidir o rótulo só importa QUAL classe fica com a maior probabilidade
-   no fim, não o valor exato dela. Mesmo que o número saia meio torto pela
-   suposição errada, a ORDEM entre "chance de ser bot" e "chance de ser
-   humano" costuma se manter certa.
-
-3) VÁRIAS PISTAS AO MESMO TEMPO: O PRODUTÓRIO E O CRITÉRIO MAP
-
-   Na prática, uma conta tem várias pistas ao mesmo tempo, não só uma.
-   Com a suposição de independência, a verossimilhança conjunta de todas
-   as pistas vira simplesmente o PRODUTO das verossimilhanças de cada
-   pista isolada:
-
-       P(bot | pistas) ∝ P(bot) * P(pista1|bot) * P(pista2|bot) * P(pista3|bot)
-
-   O símbolo ∝ quer dizer "proporcional a": dá pra ignorar o denominador
-   P(pistas) do Teorema de Bayes, porque ele é igual pra bot e pra humano
-   (não muda qual classe vence a comparação), então só interessa comparar
-   os numeradores.
-
-   Calcula-se esse produto pra "bot" e pra "humano" e escolhe-se o maior.
-   Esse critério tem nome, MAP (Maximum A Posteriori, "máximo a
-   posteriori"): maximiza a probabilidade calculada DEPOIS de olhar as
-   pistas, em contraste com maximizar só a verossimilhança sozinha,
-   ignorando o prior.
-
-4) O PROBLEMA DO PRODUTO DE ZERO E A SUAVIZAÇÃO DE LAPLACE
-
-   E se uma pista nunca apareceu junto de "bot" em nenhuma conta do
-   histórico analisado? Então P(pista|bot) = 0, e como é um produtório,
-   isso zera a chance de ser bot inteira, não importa quão suspeitas sejam
-   as OUTRAS pistas. Uma única combinação nunca vista antes derruba a
-   conclusão inteira pra zero, mesmo que todo o resto grite "bot".
-
-   A correção clássica é a suavização de Laplace: em vez de contar direto,
-   soma-se 1 em cada contagem antes de dividir:
-
-       P(pista|classe) = (contagem(pista, classe) + 1) / (total(classe) + k)
-
-   onde k é o número de valores possíveis daquela pista (2, no caso de uma
-   pista Sim/Não). Isso garante que nenhuma probabilidade fica exatamente
-   zero, então uma pista rara deixa de ter poder de veto total sobre as
-   demais.
-
-5) AS VARIANTES: O QUE MUDA É SÓ COMO P(pista|classe) É CALCULADO
-
-   - BernoulliNB: pista é presença/ausência (tipo as do nosso anti-cheat),
-     calculada por contagem direta, exatamente como fizemos acima.
-   - MultinomialNB: pista é uma CONTAGEM (quantas vezes uma palavra
-     aparece num texto, por exemplo), clássico em filtro de spam.
-   - GaussianNB: pista é um NÚMERO CONTÍNUO (tipo valor de uma compra em
-     reais). Em vez de contar quantas vezes um valor exato apareceu (o que
-     quase nunca se repete pra número real), assume-se que os valores
-     seguem uma curva de sino (distribuição normal) dentro de cada classe,
-     usando a média e o desvio padrão da própria classe pra calcular a
-     "densidade" naquele ponto. Quanto mais perto da média da classe,
-     maior a densidade, e vice-versa.
-
-   O dataset de fraude do módulo 01 tem atributos numéricos contínuos
-   (valor da compra, componentes de PCA), então a Parte 3 usa GaussianNB.
-
-   Detalhe de implementação: multiplicar dezenas de números pequenos entre
-   0 e 1 pode fazer o resultado ficar tão perto de zero que o computador
-   arredonda pra zero (erro de underflow). Por isso, na prática, os
-   algoritmos trabalham com o LOGARITMO das probabilidades, transformando
-   o produtório numa soma, numericamente mais estável e com o mesmo
-   resultado na comparação final entre classes.
-
-6) VANTAGENS x DESVANTAGENS
-   (+) Rápido de treinar e de prever: só calcula frequências, médias e
-       desvios padrão, sem otimização iterativa.
-   (+) Funciona bem com poucos dados de treino.
-   (+) Lida naturalmente com muitos atributos (tipo milhares de palavras
-       num filtro de spam), porque a suposição de independência evita
-       calcular probabilidades conjuntas complexas demais pra qualquer
-       dataset cobrir.
-   (+) Boa baseline: mesmo com a suposição "ingênua" claramente errada em
-       muitos casos reais, costuma ter desempenho competitivo.
-   (-) A suposição de independência condicional raramente é verdadeira,
-       prejudica a qualidade das probabilidades estimadas (mesmo que a
-       classificação final ainda saia certa na maioria das vezes).
-   (-) Sensível a pistas redundantes: duas pistas correlacionadas são
-       contadas como se fossem duas evidências independentes, o que pode
-       enviesar a decisão numa direção sem motivo real.
-   (-) GaussianNB assume distribuição normal dos atributos contínuos, que
-       pode não bater com a distribuição real dos dados.
----------------------------------------------------------------------------
 """
 
 import sys
