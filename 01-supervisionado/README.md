@@ -9,7 +9,7 @@ dataset e o mesmo split de treino/teste (ver `utils/data_utils.py`).
 - [X] k-NN (`knn/knn.py`)
 - [X] SVM (`svm/svm.py`)
 - [X] Naive Bayes (`naive_bayes/naive_bayes.py`)
-- [ ] Bagging (`bagging/bagging.py`)
+- [X] Bagging (`bagging/bagging.py`)
 - [ ] Boosting (`boosting/boosting.py`)
 - [ ] Random Forest (`random_forest/random_forest.py`)
 
@@ -24,7 +24,7 @@ num dataset com 0,17% de fraude, acurácia sozinha não diz muita coisa.
 | k-NN (K=3, uniform) | 0,9996 | 0,9101 | 0,8265 | 0,8663 |
 | SVM (LinearSVC, C=1) | 0,9991 | 0,8286 | 0,5918 | 0,6905 |
 | Naive Bayes (GaussianNB, var_smoothing=1e-9) | 0,9764 | 0,0588 | 0,8469 | 0,1099 |
-| Bagging | | | | |
+| Bagging (BaggingClassifier, 100 árvores) | 0,9996 | 0,9213 | 0,8367 | 0,8770 |
 | Boosting | | | | |
 | Random Forest | | | | |
 
@@ -65,3 +65,20 @@ num dataset com 0,17% de fraude, acurácia sozinha não diz muita coisa.
   mais pra mostrar a ideia de kernel não linear e o custo computacional
   do RBF (ver `svm/svm.py`) do que como número final da classe SVM neste
   dataset.
+- Bagging: o F1 da classe fraude (0,8770) já supera todos os algoritmos
+  individuais da tabela, esperado, já que o comitê inteiro decide, não uma
+  única árvore. O ganho mais interessante não é esse número final, é a
+  redução de variância: treinando uma única árvore em cada amostra bootstrap
+  do treino (o equivalente a "um investigador sozinho") e comparando com o
+  comitê inteiro, em 5 sementes diferentes, o F1 do investigador sozinho
+  variou bastante entre sementes (desvio-padrão 0,0152) enquanto o do comitê
+  quase não se mexeu (desvio-padrão 0,0051), quase 3x menos, o efeito de
+  reduzir variância sem reduzir viés acontecendo com dados de verdade (ver
+  `bagging/bagging.py` e `bagging/images/comparacao_variancia.png`). Pegadinha
+  que caiu na hora de montar essa comparação: trocar só o `random_state` de
+  uma árvore treinada sempre no MESMO conjunto de treino não mede variância
+  nenhuma, porque com atributos contínuos a árvore quase nunca tem empate pra
+  desempatar; a instabilidade de verdade só aparece reamostrando o próprio
+  conjunto de treino. A acurácia estimada por out-of-bag (0,9995) também ficou
+  bem colada na acurácia medida de fato no teste (0,9996), confirmando que o
+  erro OOB funciona como uma prévia gratuita do desempenho em dados novos.
