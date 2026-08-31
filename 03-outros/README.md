@@ -12,3 +12,8 @@ entra nem em `01-supervisionado/` nem em `02-nao_supervisionado/`.
 - `pac_learning/`: formalização teórica do aprendizado (PAC-learning,
   generalização). É teoria sobre aprendizado em geral, não um algoritmo
   específico.
+- `comites_classificadores/`: teoria geral de comitês/ensembles (no-free-lunch,
+  requisito de diversidade, regras de combinação, seleção estática x
+  dinâmica, stacking, cascading, metaaprendizado, sistemas híbridos,
+  decomposição multiclasse). É o guarda-chuva teórico por cima de bagging,
+  boosting e random forest, não um algoritmo específico pra rodar.

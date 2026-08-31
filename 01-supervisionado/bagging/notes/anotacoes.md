@@ -81,3 +81,4 @@ Essa independência é a principal diferença estrutural para o boosting (tema d
 
 - `bagging/bagging.py`: bootstrap manual num júri de brinquedo com 16 suspeitos, votos individuais divergindo, cálculo do erro out-of-bag comparado ao erro de teste, e o treino de verdade no dataset de fraude (`BaggingClassifier` comparado a uma árvore única, em várias sementes aleatórias, pra ver a variância caindo na prática).
 - `01-supervisionado/decision_tree/notes/anotacoes.md`: teoria da árvore de decisão, o estimador base mais comum do bagging.
+- `03-outros/comites_classificadores/notes/anotacoes.md`: teoria geral de comitês (no-free-lunch, requisito de diversidade, regras de combinação, stacking, cascading), o guarda-chuva teórico por cima desta nota.
