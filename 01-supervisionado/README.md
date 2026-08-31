@@ -10,8 +10,8 @@ dataset e o mesmo split de treino/teste (ver `utils/data_utils.py`).
 - [X] SVM (`svm/svm.py`)
 - [X] Naive Bayes (`naive_bayes/naive_bayes.py`)
 - [X] Bagging (`bagging/bagging.py`)
-- [ ] Boosting (`boosting/boosting.py`)
-- [ ] Random Forest (`random_forest/random_forest.py`)
+- [X] Boosting (`boosting/boosting.py`)
+- [X] Random Forest (`random_forest/random_forest.py`)
 
 ## Comparação de resultados
 
@@ -25,8 +25,8 @@ num dataset com 0,17% de fraude, acurácia sozinha não diz muita coisa.
 | SVM (LinearSVC, C=1) | 0,9991 | 0,8286 | 0,5918 | 0,6905 |
 | Naive Bayes (GaussianNB, var_smoothing=1e-9) | 0,9764 | 0,0588 | 0,8469 | 0,1099 |
 | Bagging (BaggingClassifier, 100 árvores) | 0,9996 | 0,9213 | 0,8367 | 0,8770 |
-| Boosting | | | | |
-| Random Forest | | | | |
+| Boosting (AdaBoostClassifier, stumps, 150 rodadas) | 0,9991 | 0,7347 | 0,7347 | 0,7347 |
+| Random Forest (RandomForestClassifier, max_features='sqrt', 100 árvores) | 0,9996 | 0,9412 | 0,8163 | 0,8743 |
 
 ## Notas e aprendizados
 
@@ -82,3 +82,39 @@ num dataset com 0,17% de fraude, acurácia sozinha não diz muita coisa.
   conjunto de treino. A acurácia estimada por out-of-bag (0,9995) também ficou
   bem colada na acurácia medida de fato no teste (0,9996), confirmando que o
   erro OOB funciona como uma prévia gratuita do desempenho em dados novos.
+- Boosting: F1 da classe fraude (0,7347) ficou abaixo do bagging (0,8770) e
+  do k-NN (0,8663) nesta tabela, apesar do AdaBoost ter 150 rodadas contra
+  as 100 árvores do bagging. Não é falha de implementação, é o próprio
+  `staged_predict` rodada a rodada mostrando o motivo: o F1 de treino sobe
+  quase sem parar até a última rodada (0,7229 -> 0,7622), enquanto o F1 de
+  teste sobe rápido nas primeiras ~40 rodadas e depois oscila estacionado
+  em torno de 0,73-0,745, sem acompanhar o treino (ver
+  `boosting/images/curva_f1_rodada.png`), a assinatura visual do overfitting
+  que a teoria prevê pro boosting com rodadas demais. No exemplo de
+  brinquedo (torneio de lutadores) o padrão contrário e complementar
+  aparece: cada especialista é fraco sozinho (stump de profundidade 1,
+  errando exatamente 1 lutador cada), mas o comitê ponderado das 3 rodadas
+  chega a 0% de erro no próprio torneio, reduzindo viés de verdade. As duas
+  pontas (viés caindo rápido no brinquedo, variância crescendo devagar no
+  dataset de fraude) são a mesma moeda: por isso XGBoost e afins existem,
+  pra domar essa variância crescente sem abrir mão do ganho de viés (ver
+  `boosting/notes/anotacoes.md`).
+- Random Forest: no exemplo de brinquedo (com um atributo campeão
+  disparado de propósito), a decorrelação apareceu bem nítida: bagging
+  puro cravou o mesmo atributo na raiz das 9 árvores (concordância 100%
+  entre pares), enquanto o random forest, escondendo esse atributo em
+  1/3 das divisões, variou a raiz (6 armadura, 2 agilidade, 1 sorte) e a
+  concordância caiu pra 93,1% (ver `random_forest/images/concordancia_bagging_vs_rf.png`).
+  Curiosamente, esse ganho de decorrelação NÃO se traduziu em F1 melhor
+  no dataset de fraude de verdade: `max_features=None` (0,8877) bateu
+  tanto `max_features='sqrt'` (0,8743, o valor escolhido como final da
+  tabela) quanto `max_features=3` (0,8729). Não é bug, é o esperado
+  quando não existe um atributo "campeão disparado" pra decorrelacionar:
+  os 30 componentes de PCA do dataset já vêm razoavelmente decorrelacionados
+  entre si, então restringir `max_features` só custa viés (cada árvore fica
+  um pouco pior) sem comprar decorrelação suficiente pra compensar, o
+  contraponto real e honesto ao exemplo de brinquedo (ver
+  `random_forest/notes/anotacoes.md`, seção do trade-off de `max_features`).
+  A importância de atributos do modelo final apontou V17, V14 e V12 como
+  os três mais usados pelas árvores pra reduzir impureza, batendo com o
+  que é comumente citado sobre esse dataset na literatura.
