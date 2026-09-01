@@ -35,8 +35,12 @@ subpasta, com o mesmo nome do arquivo principal, por exemplo:
 │       ├── images/
 │       └── notes/
 ├── 02-nao_supervisionado/
-│   └── clustering/
-│       ├── clustering.py
+│   ├── hierarquico/
+│   │   ├── hierarquico.py
+│   │   ├── images/
+│   │   └── notes/
+│   └── kmeans/
+│       ├── kmeans.py
 │       ├── images/
 │       └── notes/
 └── 03-outros/
